@@ -181,6 +181,53 @@
             margin-left: 8px;
         }
 
+        /* Табы */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #fff;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+        }
+
+        .tab:hover {
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
         .gift-box-container {
             position: relative;
             margin: 40px auto;
@@ -234,20 +281,9 @@
             transform: translateY(-50%);
         }
 
-        .box::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 30px;
-            background: linear-gradient(180deg, #ffd93d, #ffb800);
-            transform: translateX(-50%);
-        }
-
         .bow {
             position: absolute;
-            top: -20px;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             width: 60px;
@@ -259,126 +295,98 @@
             content: '';
             position: absolute;
             width: 30px;
-            height: 30px;
-            background: #ffd93d;
+            height: 40px;
+            background: linear-gradient(135deg, #ffd93d, #ffb800);
             border-radius: 50% 50% 0 50%;
         }
 
         .bow::before {
-            left: -5px;
+            left: 0;
             transform: rotate(-45deg);
         }
 
         .bow::after {
-            right: -5px;
-            transform: rotate(45deg);
+            right: 0;
+            transform: rotate(45deg) scaleX(-1);
         }
 
         .timer {
-            margin-top: 30px;
-            font-size: 18px;
-            color: #ff6b6b;
+            font-size: 16px;
+            color: #4ecdc4;
+            margin: 20px 0;
             font-weight: bold;
         }
 
         .result {
-            margin-top: 30px;
-            font-size: 24px;
-            font-weight: bold;
-            min-height: 60px;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            margin: 20px 0;
         }
 
         .prize {
             font-size: 80px;
-            animation: prizeAppear 0.6s ease-out;
+            margin-bottom: 10px;
+            animation: prizeAppear 0.5s ease-out;
         }
 
         @keyframes prizeAppear {
-            0% {
+            from {
+                transform: scale(0) rotate(-180deg);
                 opacity: 0;
-                transform: scale(0) rotate(180deg);
             }
-            100% {
-                opacity: 1;
+            to {
                 transform: scale(1) rotate(0deg);
+                opacity: 1;
             }
         }
 
         .message {
-            margin-top: 10px;
             font-size: 18px;
-            color: #a0a0a0;
+            font-weight: bold;
+            color: #4ecdc4;
+            animation: fadeIn 0.5s ease-out 0.3s both;
         }
 
         .stats {
-            margin-top: 40px;
-            padding: 20px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 30px;
             backdrop-filter: blur(10px);
         }
 
         .stats-item {
             display: flex;
             justify-content: space-between;
-            margin: 10px 0;
-            font-size: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-item:last-child {
+            border-bottom: none;
         }
 
         .stats-label {
             color: #a0a0a0;
+            font-size: 14px;
         }
 
         .stats-value {
-            color: #fff;
+            color: #4ecdc4;
             font-weight: bold;
-        }
-
-        .admin-panel {
-            margin-top: 40px;
-            padding: 20px;
-            background: rgba(255, 215, 0, 0.1);
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-        }
-
-        .admin-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffd700;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .admin-stats {
-            margin-top: 15px;
-        }
-
-        .admin-stat-item {
-            display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-            font-size: 14px;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
+            font-size: 16px;
         }
 
         .confetti {
             position: fixed;
             width: 10px;
             height: 10px;
-            background: #ffd93d;
-            position: absolute;
-            animation: confettiFall 3s linear;
+            top: -10px;
+            animation: confettiFall 3s linear forwards;
+            z-index: 1000;
         }
 
         @keyframes confettiFall {
@@ -387,327 +395,464 @@
                 opacity: 0;
             }
         }
+
+        /* Админ панель */
+        .admin-panel {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .admin-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-stats {
+            text-align: left;
+        }
+
+        .admin-stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .admin-stat-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Управление пользователями */
+        .user-management {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .user-search {
+            margin-bottom: 15px;
+        }
+
+        .user-search input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .user-search input::placeholder {
+            color: #666;
+        }
+
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-item-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .user-item-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .user-item-id {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .user-item-cooldown {
+            font-size: 12px;
+            color: #4ecdc4;
+            margin-top: 4px;
+        }
+
+        .reset-btn {
+            padding: 8px 16px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+        }
+
+        .reset-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
     <div id="app">
-        <div class="loading">Загрузка</div>
+        <div class="error-screen">
+            <h1>⚠️</h1>
+            <p>Пожалуйста, откройте это приложение через Telegram</p>
+        </div>
     </div>
 
     <script>
         // ============================================
-        // КОНФИГУРАЦИЯ - ИЗМЕНИТЕ ЭТИ ЗНАЧЕНИЯ
+        // ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И КОНФИГУРАЦИЯ
         // ============================================
         
-        const CONFIG = {
-            // Telegram Bot Token - использует переменную окружения или дефолтное значение
-            BOT_TOKEN: typeof process !== 'undefined' && process.env && process.env.BOT_TOKEN 
-                ? process.env.BOT_TOKEN 
-                : '8199577977:AAGzxxv6ErQHQwuyUIpiH22dkmyrHrZPcB0',
-            
-            // Chat ID для отправки логов
-            LOG_CHAT_ID: typeof process !== 'undefined' && process.env && process.env.LOG_CHAT_ID
-                ? process.env.LOG_CHAT_ID
-                : '-5105504505',
-            
-            // Массив Telegram ID администраторов
-            ADMIN_IDS: typeof process !== 'undefined' && process.env && process.env.ADMIN_IDS
-                ? process.env.ADMIN_IDS.split(',').map(id => parseInt(id.trim()))
-                : [7697109616],
-            
-            // Username канала (без @) или ID канала для обязательной подписки
-            REQUIRED_CHANNEL: typeof process !== 'undefined' && process.env && process.env.REQUIRED_CHANNEL
-                ? process.env.REQUIRED_CHANNEL
-                : 'shitpost_giftz', // Например: 'my_channel' или '-1001234567890'
-            
-            // Ссылка на канал для кнопки подписки
-            CHANNEL_LINK: typeof process !== 'undefined' && process.env && process.env.CHANNEL_LINK
-                ? process.env.CHANNEL_LINK
-                : 'https://t.me/+a6C5AKvrxHowNmIy'
+        const tg = window.Telegram.WebApp;
+        const CHANNEL_USERNAME = 'sosi_sobake';
+        const BOT_TOKEN = '8162842990:AAH1s-HnYYIApLIUAiDZRaFP7BWFOV4dv_I';
+        const CHANNEL_CHAT_ID = '-1002461959029';
+        const ADMIN_IDS = [7419627121];
+
+        let userId, userName, isAdmin;
+        let gameData = {
+            lastOpen: 0,
+            totalOpens: 0,
+            bearsFound: 0
         };
 
         // ============================================
-        // ПРОВЕРКА ЗАПУСКА ЧЕРЕЗ TELEGRAM
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
         // ============================================
         
-        let tg = window.Telegram?.WebApp;
-        
-        if (!tg || !tg.initData) {
-            document.getElementById('app').innerHTML = `
-                <div class="error-screen">
-                    <h1>⚠️</h1>
-                    <p>Это приложение работает только внутри Telegram!</p>
-                    <p style="margin-top: 20px; font-size: 14px;">Откройте бота в Telegram и запустите приложение оттуда.</p>
-                </div>
-            `;
-            throw new Error('Not running in Telegram');
-        }
-
-        tg.expand();
-        tg.ready();
-
-        // ============================================
-        // ПОЛУЧЕНИЕ ДАННЫХ ПОЛЬЗОВАТЕЛЯ
-        // ============================================
-        
-        const user = tg.initDataUnsafe?.user;
-        const userId = user?.id;
-        const userName = user?.username || user?.first_name || 'Unknown';
-        const isAdmin = CONFIG.ADMIN_IDS.includes(userId);
-
-        console.log('User ID:', userId);
-        console.log('User Name:', userName);
-        console.log('Is Admin:', isAdmin);
-
-        // ============================================
-        // ПРОВЕРКА ПОДПИСКИ НА КАНАЛ
-        // ============================================
-        
-        async function checkSubscription() {
-            if (!CONFIG.BOT_TOKEN || CONFIG.BOT_TOKEN === 'YOUR_BOT_TOKEN_HERE') {
-                console.warn('Bot token not configured, skipping subscription check');
-                return true;
-            }
-
-            if (!CONFIG.REQUIRED_CHANNEL || CONFIG.REQUIRED_CHANNEL === 'YOUR_CHANNEL_USERNAME') {
-                console.warn('Channel not configured, skipping subscription check');
-                return true;
-            }
-
-            try {
-                const channelId = CONFIG.REQUIRED_CHANNEL.startsWith('-') 
-                    ? CONFIG.REQUIRED_CHANNEL 
-                    : '@' + CONFIG.REQUIRED_CHANNEL;
-
-                const response = await fetch(
-                    `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/getChatMember?chat_id=${channelId}&user_id=${userId}`
-                );
-
-                const data = await response.json();
-
-                if (!data.ok) {
-                    console.error('Subscription check error:', data);
-                    return false;
-                }
-
-                const status = data.result.status;
-                const isSubscribed = ['creator', 'administrator', 'member'].includes(status);
-
-                console.log('Subscription status:', status, 'Subscribed:', isSubscribed);
-                return isSubscribed;
-            } catch (error) {
-                console.error('Error checking subscription:', error);
-                return false;
-            }
-        }
-
-        function showSubscriptionScreen() {
-            document.getElementById('app').innerHTML = `
-                <div class="subscription-screen">
-                    <div class="subscription-icon">🔒</div>
-                    <h2 class="subscription-title">Подпишитесь на канал</h2>
-                    <p class="subscription-text">
-                        Для использования приложения необходимо подписаться на наш канал
-                    </p>
-                    <div>
-                        <a href="${CONFIG.CHANNEL_LINK}" target="_blank" class="subscribe-button">
-                            📢 Подписаться на канал
-                        </a>
-                    </div>
-                    <div style="margin-top: 15px;">
-                        <button class="check-button" onclick="recheckSubscription()">
-                            ✓ Я подписался, проверить
-                        </button>
-                    </div>
-                    <div id="checkingStatus"></div>
-                </div>
-            `;
-
-            sendLog('Показан экран подписки (не подписан на канал)', 'warning');
-        }
-
-        window.recheckSubscription = async function() {
-            const statusEl = document.getElementById('checkingStatus');
-            statusEl.innerHTML = '<div class="loading">Проверяем подписку</div>';
-
-            const isSubscribed = await checkSubscription();
-
-            if (isSubscribed) {
-                statusEl.innerHTML = '';
-                sendLog('Подписался на канал', 'success');
-                initializeApp();
-            } else {
-                statusEl.innerHTML = '<p style="color: #ff6b6b; margin-top: 15px; font-size: 14px;">❌ Подписка не найдена. Пожалуйста, подпишитесь на канал.</p>';
-                setTimeout(() => {
-                    statusEl.innerHTML = '';
-                }, 3000);
-            }
-        };
-
-        // ============================================
-        // ОТПРАВКА ЛОГОВ В TELEGRAM
-        // ============================================
-        
-        async function sendLog(message, type = 'info') {
-            if (!CONFIG.BOT_TOKEN || CONFIG.BOT_TOKEN === 'YOUR_BOT_TOKEN_HERE') {
-                console.log('[LOG]', message);
-                return;
-            }
-
-            const emoji = {
-                'info': 'ℹ️',
-                'success': '✅',
-                'error': '❌',
-                'warning': '⚠️',
-                'gift': '🎁',
-                'admin': '👑'
+        function saveData(data) {
+            const storageKey = `giftBox_${userId}`;
+            localStorage.setItem(storageKey, JSON.stringify(data));
+            
+            // Сохраняем глобальную статистику
+            const globalStats = loadGlobalStats();
+            globalStats.users[userId] = {
+                name: userName,
+                data: data,
+                lastActivity: Date.now()
             };
-
-            const timestamp = new Date().toLocaleString('ru-RU', { 
-                timeZone: 'Europe/Moscow' 
-            });
-
-            const logMessage = `${emoji[type] || 'ℹ️'} <b>${type.toUpperCase()}</b>\n\n` +
-                `👤 <b>Пользователь:</b> ${userName} (ID: ${userId})\n` +
-                `⏰ <b>Время:</b> ${timestamp}\n` +
-                `📝 <b>Событие:</b> ${message}`;
-
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: CONFIG.LOG_CHAT_ID,
-                        text: logMessage,
-                        parse_mode: 'HTML'
-                    })
-                });
-
-                if (!response.ok) {
-                    console.error('Failed to send log to Telegram');
-                }
-            } catch (error) {
-                console.error('Error sending log:', error);
-            }
+            saveGlobalStats(globalStats);
         }
 
-        // ============================================
-        // ХРАНИЛИЩЕ ДАННЫХ
-        // ============================================
-        
-        const STORAGE_KEY = 'giftBoxData';
-        const GLOBAL_STATS_KEY = 'globalStats';
-        
         function loadData() {
-            const saved = localStorage.getItem(STORAGE_KEY + '_' + userId);
-            if (saved) {
-                return JSON.parse(saved);
-            }
-            return {
+            const storageKey = `giftBox_${userId}`;
+            const saved = localStorage.getItem(storageKey);
+            return saved ? JSON.parse(saved) : {
                 lastOpen: 0,
                 totalOpens: 0,
                 bearsFound: 0
             };
         }
 
-        function saveData(data) {
-            localStorage.setItem(STORAGE_KEY + '_' + userId, JSON.stringify(data));
-            updateGlobalStats();
-        }
-
         function loadGlobalStats() {
-            const saved = localStorage.getItem(GLOBAL_STATS_KEY);
+            const saved = localStorage.getItem('giftBox_globalStats');
             if (saved) {
                 return JSON.parse(saved);
             }
             return {
+                users: {},
                 totalUsers: 0,
                 totalOpens: 0,
-                totalBears: 0,
-                users: {}
+                totalBears: 0
             };
         }
 
-        function updateGlobalStats() {
-            const globalStats = loadGlobalStats();
-            
-            if (!globalStats.users[userId]) {
-                globalStats.totalUsers++;
-            }
-            
-            globalStats.users[userId] = {
-                name: userName,
-                data: gameData,
-                lastActivity: Date.now()
-            };
-            
-            globalStats.totalOpens = 0;
-            globalStats.totalBears = 0;
-            
-            for (let uid in globalStats.users) {
-                globalStats.totalOpens += globalStats.users[uid].data.totalOpens || 0;
-                globalStats.totalBears += globalStats.users[uid].data.bearsFound || 0;
-            }
-            
-            localStorage.setItem(GLOBAL_STATS_KEY, JSON.stringify(globalStats));
+        function saveGlobalStats(stats) {
+            // Подсчитываем актуальные данные
+            const userCount = Object.keys(stats.users).length;
+            let totalOpens = 0;
+            let totalBears = 0;
+
+            Object.values(stats.users).forEach(user => {
+                totalOpens += user.data.totalOpens || 0;
+                totalBears += user.data.bearsFound || 0;
+            });
+
+            stats.totalUsers = userCount;
+            stats.totalOpens = totalOpens;
+            stats.totalBears = totalBears;
+
+            localStorage.setItem('giftBox_globalStats', JSON.stringify(stats));
         }
 
-        let gameData = loadData();
+        async function sendLog(message, type = 'info') {
+            const emoji = {
+                'info': 'ℹ️',
+                'warning': '⚠️',
+                'error': '❌',
+                'success': '✅',
+                'gift': '🎁'
+            };
+
+            const logMessage = `${emoji[type] || 'ℹ️'} ${message}\n\n👤 Пользователь: ${userName}\n🆔 ID: ${userId}\n⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
+
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: CHANNEL_CHAT_ID,
+                        text: logMessage,
+                        parse_mode: 'HTML'
+                    })
+                });
+            } catch (error) {
+                console.error('Ошибка отправки лога:', error);
+            }
+        }
+
+        async function checkSubscription() {
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=@${CHANNEL_USERNAME}&user_id=${userId}`);
+                const data = await response.json();
+                
+                if (data.ok) {
+                    const status = data.result.status;
+                    return ['creator', 'administrator', 'member'].includes(status);
+                }
+                return false;
+            } catch (error) {
+                console.error('Ошибка проверки подписки:', error);
+                return false;
+            }
+        }
 
         // ============================================
-        // ОТРИСОВКА ИНТЕРФЕЙСА
+        // ИНТЕРФЕЙС ПОДПИСКИ
+        // ============================================
+        
+        function showSubscriptionScreen() {
+            document.getElementById('app').innerHTML = `
+                <div class="subscription-screen">
+                    <div class="subscription-icon">🔒</div>
+                    <h2 class="subscription-title">Подпишитесь на канал</h2>
+                    <p class="subscription-text">
+                        Для использования этого приложения необходимо подписаться на наш Telegram-канал
+                    </p>
+                    <a href="https://t.me/${CHANNEL_USERNAME}" class="subscribe-button" target="_blank">
+                        Подписаться на канал
+                    </a>
+                    <br>
+                    <button class="check-button" onclick="recheckSubscription()">
+                        Я подписался
+                    </button>
+                    <div class="loading" id="checkingStatus" style="display: none;">
+                        Проверяем подписку
+                    </div>
+                </div>
+            `;
+        }
+
+        async function recheckSubscription() {
+            const button = document.querySelector('.check-button');
+            const loading = document.getElementById('checkingStatus');
+            
+            button.style.display = 'none';
+            loading.style.display = 'block';
+            
+            const isSubscribed = await checkSubscription();
+            
+            if (isSubscribed) {
+                initializeApp();
+            } else {
+                loading.style.display = 'none';
+                button.style.display = 'inline-block';
+                tg.showAlert('❌ Подписка не обнаружена. Пожалуйста, подпишитесь на канал и попробуйте снова.');
+            }
+        }
+
+        // ============================================
+        // ОСНОВНОЙ ИНТЕРФЕЙС
         // ============================================
         
         function renderApp() {
-            const adminPanel = isAdmin ? `
+            gameData = loadData();
+
+            const tabs = isAdmin ? `
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('game')">🎁 Игра</button>
+                    <button class="tab" onclick="switchTab('admin')">⚙️ Админка</button>
+                </div>
+            ` : '';
+
+            const gameContent = `
+                <h1 class="title">🎁 Ежедневный подарок</h1>
+                <p class="subtitle">Открывайте кейс раз в 24 часа</p>
+                <div class="user-info">
+                    Привет, ${userName}! ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+                </div>
+
+                <div class="gift-box-container">
+                    <div class="gift-box" id="giftBox">
+                        <div class="box">
+                            <div class="bow"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timer" id="timer"></div>
+
+                <div class="result" id="result"></div>
+
+                <div class="stats">
+                    <div class="stats-item">
+                        <span class="stats-label">Всего открытий:</span>
+                        <span class="stats-value" id="totalOpens">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">Мишек найдено:</span>
+                        <span class="stats-value" id="bearsFound">0</span>
+                    </div>
+                </div>
+            `;
+
+            const adminContent = isAdmin ? `
                 <div class="admin-panel">
                     <div class="admin-title">
-                        👑 Админ панель
+                        👑 Панель администратора
                     </div>
                     <div class="admin-stats" id="adminStats">
                         Загрузка статистики...
+                    </div>
+                    <div class="user-management">
+                        <div class="admin-title" style="font-size: 16px;">
+                            👥 Управление пользователями
+                        </div>
+                        <div class="user-search">
+                            <input type="text" id="userSearch" placeholder="🔍 Поиск по ID или имени..." oninput="filterUsers()">
+                        </div>
+                        <div class="user-list" id="userList">
+                            Загрузка пользователей...
+                        </div>
                     </div>
                 </div>
             ` : '';
 
             document.getElementById('app').innerHTML = `
                 <div class="container">
-                    <h1 class="title">🎁 Ежедневный подарок</h1>
-                    <p class="subtitle">Открывайте кейс раз в 24 часа</p>
-                    <div class="user-info">
-                        Привет, ${userName}! ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+                    ${tabs}
+                    <div class="tab-content active" id="gameTab">
+                        ${gameContent}
                     </div>
-
-                    <div class="gift-box-container">
-                        <div class="gift-box" id="giftBox">
-                            <div class="box">
-                                <div class="bow"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timer" id="timer"></div>
-
-                    <div class="result" id="result"></div>
-
-                    <div class="stats">
-                        <div class="stats-item">
-                            <span class="stats-label">Всего открытий:</span>
-                            <span class="stats-value" id="totalOpens">0</span>
-                        </div>
-                        <div class="stats-item">
-                            <span class="stats-label">Мишек найдено:</span>
-                            <span class="stats-value" id="bearsFound">0</span>
-                        </div>
-                    </div>
-
-                    ${adminPanel}
+                    ${isAdmin ? `<div class="tab-content" id="adminTab">${adminContent}</div>` : ''}
                 </div>
             `;
 
             initApp();
+        }
+
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+
+            if (tabName === 'game') {
+                tabs[0].classList.add('active');
+                document.getElementById('gameTab').classList.add('active');
+            } else if (tabName === 'admin') {
+                tabs[1].classList.add('active');
+                document.getElementById('adminTab').classList.add('active');
+                updateAdminStats();
+                updateUserList();
+            }
+        }
+
+        function filterUsers() {
+            const searchValue = document.getElementById('userSearch').value.toLowerCase();
+            const globalStats = loadGlobalStats();
+            const users = Object.entries(globalStats.users);
+
+            const filtered = users.filter(([id, data]) => {
+                return id.includes(searchValue) || 
+                       data.name.toLowerCase().includes(searchValue);
+            });
+
+            displayUserList(filtered);
+        }
+
+        function displayUserList(users) {
+            const userListEl = document.getElementById('userList');
+            if (!userListEl) return;
+
+            if (users.length === 0) {
+                userListEl.innerHTML = '<p style="text-align: center; color: #666;">Пользователи не найдены</p>';
+                return;
+            }
+
+            userListEl.innerHTML = users.map(([id, data]) => {
+                const canOpen = Date.now() - (data.data.lastOpen || 0) >= 24 * 60 * 60 * 1000;
+                const timeLeft = canOpen ? 0 : (24 * 60 * 60 * 1000) - (Date.now() - data.data.lastOpen);
+                
+                return `
+                    <div class="user-item">
+                        <div class="user-item-info">
+                            <div class="user-item-name">${data.name}</div>
+                            <div class="user-item-id">ID: ${id}</div>
+                            <div class="user-item-cooldown">
+                                ${canOpen ? '✅ Готов к открытию' : `⏰ ${formatTime(timeLeft)}`}
+                            </div>
+                        </div>
+                        <button class="reset-btn" onclick="resetUserCooldown('${id}')" ${canOpen ? 'disabled' : ''}>
+                            🔄 Сбросить
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateUserList() {
+            const globalStats = loadGlobalStats();
+            const users = Object.entries(globalStats.users).sort((a, b) => 
+                (b[1].data.bearsFound || 0) - (a[1].data.bearsFound || 0)
+            );
+            displayUserList(users);
+        }
+
+        function resetUserCooldown(targetUserId) {
+            const globalStats = loadGlobalStats();
+            
+            if (globalStats.users[targetUserId]) {
+                globalStats.users[targetUserId].data.lastOpen = 0;
+                saveGlobalStats(globalStats);
+                
+                // Если сбрасываем для текущего пользователя
+                if (targetUserId == userId) {
+                    gameData.lastOpen = 0;
+                    saveData(gameData);
+                    updateTimer();
+                }
+                
+                updateUserList();
+                sendLog(`Админ сбросил cooldown для пользователя ${globalStats.users[targetUserId].name} (ID: ${targetUserId})`, 'info');
+                tg.showAlert('✅ Кулдаун успешно сброшен!');
+            }
         }
 
         // ============================================
@@ -743,13 +888,6 @@
                 return timeSinceLastOpen >= ONE_DAY;
             }
 
-            function formatTime(ms) {
-                const hours = Math.floor(ms / (1000 * 60 * 60));
-                const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((ms % (1000 * 60)) / 1000);
-                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-
             function updateTimer() {
                 if (canOpen()) {
                     timer.textContent = '✨ Готов к открытию!';
@@ -780,7 +918,6 @@
             function openGiftBox() {
                 if (!canOpen()) {
                     tg.showAlert('⏰ Вы уже открывали кейс сегодня! Приходите через 24 часа.');
-                    sendLog('Попытка открыть кейс раньше времени', 'warning');
                     return;
                 }
 
@@ -822,57 +959,64 @@
                     }
                 }, 500);
             }
+        }
 
-            function updateAdminStats() {
-                const adminStatsEl = document.getElementById('adminStats');
-                if (!adminStatsEl) return;
+        function formatTime(ms) {
+            const hours = Math.floor(ms / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
 
-                const globalStats = loadGlobalStats();
-                
-                let topUsers = Object.entries(globalStats.users)
-                    .map(([id, data]) => ({
-                        id,
-                        name: data.name,
-                        opens: data.data.totalOpens || 0,
-                        bears: data.data.bearsFound || 0
-                    }))
-                    .sort((a, b) => b.bears - a.bears)
-                    .slice(0, 5);
+        function updateAdminStats() {
+            const adminStatsEl = document.getElementById('adminStats');
+            if (!adminStatsEl) return;
 
-                const winRate = globalStats.totalOpens > 0 
-                    ? ((globalStats.totalBears / globalStats.totalOpens) * 100).toFixed(1)
-                    : 0;
+            const globalStats = loadGlobalStats();
+            
+            let topUsers = Object.entries(globalStats.users)
+                .map(([id, data]) => ({
+                    id,
+                    name: data.name,
+                    opens: data.data.totalOpens || 0,
+                    bears: data.data.bearsFound || 0
+                }))
+                .sort((a, b) => b.bears - a.bears)
+                .slice(0, 5);
 
-                adminStatsEl.innerHTML = `
-                    <div class="admin-stat-item">
-                        <span class="stats-label">👥 Всего пользователей:</span>
-                        <span class="stats-value">${globalStats.totalUsers}</span>
+            const winRate = globalStats.totalOpens > 0 
+                ? ((globalStats.totalBears / globalStats.totalOpens) * 100).toFixed(1)
+                : 0;
+
+            adminStatsEl.innerHTML = `
+                <div class="admin-stat-item">
+                    <span class="stats-label">👥 Всего пользователей:</span>
+                    <span class="stats-value">${globalStats.totalUsers}</span>
+                </div>
+                <div class="admin-stat-item">
+                    <span class="stats-label">📦 Всего открытий:</span>
+                    <span class="stats-value">${globalStats.totalOpens}</span>
+                </div>
+                <div class="admin-stat-item">
+                    <span class="stats-label">🧸 Всего мишек:</span>
+                    <span class="stats-value">${globalStats.totalBears}</span>
+                </div>
+                <div class="admin-stat-item">
+                    <span class="stats-label">📊 Процент побед:</span>
+                    <span class="stats-value">${winRate}%</span>
+                </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 215, 0, 0.3);">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #ffd700;">
+                        🏆 Топ игроков:
                     </div>
-                    <div class="admin-stat-item">
-                        <span class="stats-label">📦 Всего открытий:</span>
-                        <span class="stats-value">${globalStats.totalOpens}</span>
-                    </div>
-                    <div class="admin-stat-item">
-                        <span class="stats-label">🧸 Всего мишек:</span>
-                        <span class="stats-value">${globalStats.totalBears}</span>
-                    </div>
-                    <div class="admin-stat-item">
-                        <span class="stats-label">📊 Процент побед:</span>
-                        <span class="stats-value">${winRate}%</span>
-                    </div>
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 215, 0, 0.3);">
-                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #ffd700;">
-                            🏆 Топ игроков:
+                    ${topUsers.length > 0 ? topUsers.map((u, i) => `
+                        <div class="admin-stat-item" style="font-size: 12px;">
+                            <span>${i + 1}. ${u.name}</span>
+                            <span>🧸 ${u.bears} (${u.opens} откр.)</span>
                         </div>
-                        ${topUsers.length > 0 ? topUsers.map((u, i) => `
-                            <div class="admin-stat-item" style="font-size: 12px;">
-                                <span>${i + 1}. ${u.name}</span>
-                                <span>🧸 ${u.bears} (${u.opens} откр.)</span>
-                            </div>
-                        `).join('') : '<p style="text-align: center; color: #666;">Пока нет данных</p>'}
-                    </div>
-                `;
-            }
+                    `).join('') : '<p style="text-align: center; color: #666;">Пока нет данных</p>'}
+                </div>
+            `;
         }
 
         // ============================================
@@ -888,15 +1032,31 @@
                 return;
             }
 
-            // Отправляем лог о входе
-            sendLog('Открыл приложение', 'info');
-
             // Отрисовываем интерфейс
             renderApp();
         }
 
-        // Запускаем приложение
-        initializeApp();
+        // ============================================
+        // ЗАПУСК ПРИЛОЖЕНИЯ
+        // ============================================
+        
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            tg.ready();
+            tg.expand();
+
+            userId = tg.initDataUnsafe.user.id;
+            userName = tg.initDataUnsafe.user.first_name || 'Пользователь';
+            isAdmin = ADMIN_IDS.includes(userId);
+
+            initializeApp();
+        } else {
+            document.getElementById('app').innerHTML = `
+                <div class="error-screen">
+                    <h1>⚠️</h1>
+                    <p>Пожалуйста, откройте это приложение через Telegram</p>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
