@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ежедневный подарок</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .error-screen {
+            text-align: center;
+            padding: 40px;
+            max-width: 400px;
+        }
+
+        .error-screen h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .error-screen p {
+            font-size: 18px;
+            color: #a0a0a0;
+            line-height: 1.6;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-bottom: 40px;
+        }
+
+        .user-info {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .gift-box-container {
+            position: relative;
+            margin: 40px auto;
+        }
+
+        .gift-box {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .gift-box:hover:not(.disabled) {
+            transform: scale(1.05);
+        }
+
+        .gift-box.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .gift-box.opening {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .box {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #ff6b6b, #ee5a6f);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(255, 107, 107, 0.4);
+            position: relative;
+        }
+
+        .box::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(90deg, #ffd93d, #ffb800);
+            transform: translateY(-50%);
+        }
+
+        .box::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 30px;
+            background: linear-gradient(180deg, #ffd93d, #ffb800);
+            transform: translateX(-50%);
+        }
+
+        .bow {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 40px;
+        }
+
+        .bow::before,
+        .bow::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #ffd93d;
+            border-radius: 50% 50% 0 50%;
+        }
+
+        .bow::before {
+            left: -5px;
+            transform: rotate(-45deg);
+        }
+
+        .bow::after {
+            right: -5px;
+            transform: rotate(45deg);
+        }
+
+        .timer {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .prize {
+            font-size: 80px;
+            animation: prizeAppear 0.6s ease-out;
+        }
+
+        @keyframes prizeAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0) rotate(180deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .message {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #a0a0a0;
+        }
+
+        .stats {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .stats-label {
+            color: #a0a0a0;
+        }
+
+        .stats-value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* Админ панель */
+        .admin-panel {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .admin-stats {
+            margin-top: 15px;
+        }
+
+        .admin-stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ffd93d;
+            position: absolute;
+            animation: confettiFall 3s linear;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // ============================================
+        // КОНФИГУРАЦИЯ - ИЗМЕНИТЕ ЭТИ ЗНАЧЕНИЯ
+        // ============================================
+        
+        const CONFIG = {
+            // Telegram Bot Token (получите у @BotFather)
+            BOT_TOKEN: 'YOUR_BOT_TOKEN_HERE',
+            
+            // Chat ID для отправки логов (ваш личный chat ID или ID группы)
+            // Узнать свой ID можно через @userinfobot
+            LOG_CHAT_ID: 'YOUR_CHAT_ID_HERE',
+            
+            // Массив Telegram ID администраторов
+            ADMIN_IDS: [123456789, 987654321] // Замените на реальные ID
+        };
+
+        // ============================================
+        // ПРОВЕРКА ЗАПУСКА ЧЕРЕЗ TELEGRAM
+        // ============================================
+        
+        let tg = window.Telegram?.WebApp;
+        
+        if (!tg || !tg.initData) {
+            document.getElementById('app').innerHTML = `
+                <div class="error-screen">
+                    <h1>⚠️</h1>
+                    <p>Это приложение работает только внутри Telegram!</p>
+                    <p style="margin-top: 20px; font-size: 14px;">Откройте бота в Telegram и запустите приложение оттуда.</p>
+                </div>
+            `;
+            throw new Error('Not running in Telegram');
+        }
+
+        tg.expand();
+        tg.ready();
+
+        // ============================================
+        // ПОЛУЧЕНИЕ ДАННЫХ ПОЛЬЗОВАТЕЛЯ
+        // ============================================
+        
+        const user = tg.initDataUnsafe?.user;
+        const userId = user?.id;
+        const userName = user?.username || user?.first_name || 'Unknown';
+        const isAdmin = CONFIG.ADMIN_IDS.includes(userId);
+
+        console.log('User ID:', userId);
+        console.log('User Name:', userName);
+        console.log('Is Admin:', isAdmin);
+
+        // ============================================
+        // ОТПРАВКА ЛОГОВ В TELEGRAM
+        // ============================================
+        
+        async function sendLog(message, type = 'info') {
+            if (!CONFIG.BOT_TOKEN || CONFIG.BOT_TOKEN === 'YOUR_BOT_TOKEN_HERE') {
+                console.log('[LOG]', message);
+                return;
+            }
+
+            const emoji = {
+                'info': 'ℹ️',
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'gift': '🎁',
+                'admin': '👑'
+            };
+
+            const timestamp = new Date().toLocaleString('ru-RU', { 
+                timeZone: 'Europe/Moscow' 
+            });
+
+            const logMessage = `${emoji[type] || 'ℹ️'} <b>${type.toUpperCase()}</b>\n\n` +
+                `👤 <b>Пользователь:</b> ${userName} (ID: ${userId})\n` +
+                `⏰ <b>Время:</b> ${timestamp}\n` +
+                `📝 <b>Событие:</b> ${message}`;
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: CONFIG.LOG_CHAT_ID,
+                        text: logMessage,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to send log to Telegram');
+                }
+            } catch (error) {
+                console.error('Error sending log:', error);
+            }
+        }
+
+        // ============================================
+        // ХРАНИЛИЩЕ ДАННЫХ
+        // ============================================
+        
+        const STORAGE_KEY = 'giftBoxData';
+        const GLOBAL_STATS_KEY = 'globalStats';
+        
+        function loadData() {
+            const saved = localStorage.getItem(STORAGE_KEY + '_' + userId);
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return {
+                lastOpen: 0,
+                totalOpens: 0,
+                bearsFound: 0
+            };
+        }
+
+        function saveData(data) {
+            localStorage.setItem(STORAGE_KEY + '_' + userId, JSON.stringify(data));
+            updateGlobalStats();
+        }
+
+        function loadGlobalStats() {
+            const saved = localStorage.getItem(GLOBAL_STATS_KEY);
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return {
+                totalUsers: 0,
+                totalOpens: 0,
+                totalBears: 0,
+                users: {}
+            };
+        }
+
+        function updateGlobalStats() {
+            const globalStats = loadGlobalStats();
+            
+            if (!globalStats.users[userId]) {
+                globalStats.totalUsers++;
+            }
+            
+            globalStats.users[userId] = {
+                name: userName,
+                data: gameData,
+                lastActivity: Date.now()
+            };
+            
+            // Пересчитываем общую статистику
+            globalStats.totalOpens = 0;
+            globalStats.totalBears = 0;
+            
+            for (let uid in globalStats.users) {
+                globalStats.totalOpens += globalStats.users[uid].data.totalOpens || 0;
+                globalStats.totalBears += globalStats.users[uid].data.bearsFound || 0;
+            }
+            
+            localStorage.setItem(GLOBAL_STATS_KEY, JSON.stringify(globalStats));
+        }
+
+        let gameData = loadData();
+
+        // ============================================
+        // ОТРИСОВКА ИНТЕРФЕЙСА
+        // ============================================
+        
+        function renderApp() {
+            const adminPanel = isAdmin ? `
+                <div class="admin-panel">
+                    <div class="admin-title">
+                        👑 Админ панель
+                    </div>
+                    <div class="admin-stats" id="adminStats">
+                        Загрузка статистики...
+                    </div>
+                </div>
+            ` : '';
+
+            document.getElementById('app').innerHTML = `
+                <div class="container">
+                    <h1 class="title">🎁 Ежедневный подарок</h1>
+                    <p class="subtitle">Открывайте кейс раз в 24 часа</p>
+                    <div class="user-info">
+                        Привет, ${userName}! ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+                    </div>
+
+                    <div class="gift-box-container">
+                        <div class="gift-box" id="giftBox">
+                            <div class="box">
+                                <div class="bow"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timer" id="timer"></div>
+
+                    <div class="result" id="result"></div>
+
+                    <div class="stats">
+                        <div class="stats-item">
+                            <span class="stats-label">Всего открытий:</span>
+                            <span class="stats-value" id="totalOpens">0</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Мишек найдено:</span>
+                            <span class="stats-value" id="bearsFound">0</span>
+                        </div>
+                    </div>
+
+                    ${adminPanel}
+                </div>
+            `;
+
+            // Инициализация после отрисовки
+            initApp();
+        }
+
+        // ============================================
+        // ОСНОВНАЯ ЛОГИКА ПРИЛОЖЕНИЯ
+        // ============================================
+        
+        function initApp() {
+            const giftBox = document.getElementById('giftBox');
+            const timer = document.getElementById('timer');
+            const result = document.getElementById('result');
+            const totalOpensEl = document.getElementById('totalOpens');
+            const bearsFoundEl = document.getElementById('bearsFound');
+
+            updateStats();
+            updateTimer();
+            
+            if (isAdmin) {
+                updateAdminStats();
+            }
+            
+            setInterval(updateTimer, 1000);
+            giftBox.addEventListener('click', openGiftBox);
+
+            function updateStats() {
+                totalOpensEl.textContent = gameData.totalOpens;
+                bearsFoundEl.textContent = gameData.bearsFound;
+            }
+
+            function canOpen() {
+                const now = Date.now();
+                const timeSinceLastOpen = now - gameData.lastOpen;
+                const ONE_DAY = 24 * 60 * 60 * 1000;
+                return timeSinceLastOpen >= ONE_DAY;
+            }
+
+            function formatTime(ms) {
+                const hours = Math.floor(ms / (1000 * 60 * 60));
+                const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            function updateTimer() {
+                if (canOpen()) {
+                    timer.textContent = '✨ Готов к открытию!';
+                    giftBox.classList.remove('disabled');
+                } else {
+                    const now = Date.now();
+                    const timeLeft = (24 * 60 * 60 * 1000) - (now - gameData.lastOpen);
+                    timer.textContent = `⏰ До следующего открытия: ${formatTime(timeLeft)}`;
+                    giftBox.classList.add('disabled');
+                }
+            }
+
+            function createConfetti() {
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        const confetti = document.createElement('div');
+                        confetti.className = 'confetti';
+                        confetti.style.left = Math.random() * 100 + '%';
+                        confetti.style.background = ['#ffd93d', '#ff6b6b', '#4ecdc4', '#95e1d3'][Math.floor(Math.random() * 4)];
+                        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                        document.body.appendChild(confetti);
+                        
+                        setTimeout(() => confetti.remove(), 3000);
+                    }, i * 30);
+                }
+            }
+
+            function openGiftBox() {
+                if (!canOpen()) {
+                    tg.showAlert('⏰ Вы уже открывали кейс сегодня! Приходите через 24 часа.');
+                    sendLog('Попытка открыть кейс раньше времени', 'warning');
+                    return;
+                }
+
+                giftBox.classList.add('opening');
+                result.innerHTML = '';
+                
+                setTimeout(() => {
+                    giftBox.classList.remove('opening');
+                    
+                    const won = Math.random() < 0.5;
+                    
+                    gameData.lastOpen = Date.now();
+                    gameData.totalOpens++;
+                    
+                    if (won) {
+                        gameData.bearsFound++;
+                        result.innerHTML = `
+                            <div class="prize">🧸</div>
+                            <div class="message">Поздравляем! Вы получили мишку!</div>
+                        `;
+                        createConfetti();
+                        tg.showAlert('🎉 Поздравляем! Вы выиграли мишку! 🧸');
+                        sendLog(`Выиграл мишку! 🧸 (Всего мишек: ${gameData.bearsFound})`, 'gift');
+                    } else {
+                        result.innerHTML = `
+                            <div class="prize">📦</div>
+                            <div class="message">Пусто... Удачи в следующий раз!</div>
+                        `;
+                        tg.showAlert('😔 К сожалению, в этот раз пусто. Попробуйте завтра!');
+                        sendLog('Открыл кейс, но ничего не выпало', 'info');
+                    }
+                    
+                    saveData(gameData);
+                    updateStats();
+                    updateTimer();
+                    
+                    if (isAdmin) {
+                        updateAdminStats();
+                    }
+                }, 500);
+            }
+
+            function updateAdminStats() {
+                const adminStatsEl = document.getElementById('adminStats');
+                if (!adminStatsEl) return;
+
+                const globalStats = loadGlobalStats();
+                
+                let topUsers = Object.entries(globalStats.users)
+                    .map(([id, data]) => ({
+                        id,
+                        name: data.name,
+                        opens: data.data.totalOpens || 0,
+                        bears: data.data.bearsFound || 0
+                    }))
+                    .sort((a, b) => b.bears - a.bears)
+                    .slice(0, 5);
+
+                const winRate = globalStats.totalOpens > 0 
+                    ? ((globalStats.totalBears / globalStats.totalOpens) * 100).toFixed(1)
+                    : 0;
+
+                adminStatsEl.innerHTML = `
+                    <div class="admin-stat-item">
+                        <span class="stats-label">👥 Всего пользователей:</span>
+                        <span class="stats-value">${globalStats.totalUsers}</span>
+                    </div>
+                    <div class="admin-stat-item">
+                        <span class="stats-label">📦 Всего открытий:</span>
+                        <span class="stats-value">${globalStats.totalOpens}</span>
+                    </div>
+                    <div class="admin-stat-item">
+                        <span class="stats-label">🧸 Всего мишек:</span>
+                        <span class="stats-value">${globalStats.totalBears}</span>
+                    </div>
+                    <div class="admin-stat-item">
+                        <span class="stats-label">📊 Процент побед:</span>
+                        <span class="stats-value">${winRate}%</span>
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 215, 0, 0.3);">
+                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #ffd700;">
+                            🏆 Топ игроков:
+                        </div>
+                        ${topUsers.map((u, i) => `
+                            <div class="admin-stat-item" style="font-size: 12px;">
+                                <span>${i + 1}. ${u.name}</span>
+                                <span>🧸 ${u.bears} (${u.opens} открытий)</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================
+        // ЗАПУСК ПРИЛОЖЕНИЯ
+        // ============================================
+        
+        // Отправляем лог о входе
+        sendLog('Открыл приложение', 'info');
+
+        // Отрисовываем интерфейс
+        renderApp();
+    </script>
+</body>
+</html>
