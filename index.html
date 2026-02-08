@@ -40,6 +40,107 @@
             line-height: 1.6;
         }
 
+        /* Экран подписки */
+        .subscription-screen {
+            text-align: center;
+            padding: 40px;
+            max-width: 400px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .subscription-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .subscription-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subscription-text {
+            font-size: 16px;
+            color: #a0a0a0;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .subscribe-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .subscribe-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .check-button {
+            display: inline-block;
+            padding: 12px 35px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .check-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .loading {
+            margin-top: 20px;
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
         .container {
             text-align: center;
             padding: 20px;
@@ -237,7 +338,6 @@
             font-weight: bold;
         }
 
-        /* Админ панель */
         .admin-panel {
             margin-top: 40px;
             padding: 20px;
@@ -290,7 +390,9 @@
     </style>
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app">
+        <div class="loading">Загрузка</div>
+    </div>
 
     <script>
         // ============================================
@@ -298,15 +400,30 @@
         // ============================================
         
         const CONFIG = {
-            // Telegram Bot Token (получите у @BotFather)
-            BOT_TOKEN: 'BOT_TOKEN_HERE',
+            // Telegram Bot Token - использует переменную окружения или дефолтное значение
+            BOT_TOKEN: typeof process !== 'undefined' && process.env && process.env.BOT_TOKEN 
+                ? process.env.BOT_TOKEN 
+                : 'YOUR_BOT_TOKEN_HERE',
             
-            // Chat ID для отправки логов (ваш личный chat ID или ID группы)
-            // Узнать свой ID можно через @userinfobot
-            LOG_CHAT_ID: '-5221077667',
+            // Chat ID для отправки логов
+            LOG_CHAT_ID: typeof process !== 'undefined' && process.env && process.env.LOG_CHAT_ID
+                ? process.env.LOG_CHAT_ID
+                : '-5221077667',
             
             // Массив Telegram ID администраторов
-            ADMIN_IDS: [7697109616] // Замените на реальные ID
+            ADMIN_IDS: typeof process !== 'undefined' && process.env && process.env.ADMIN_IDS
+                ? process.env.ADMIN_IDS.split(',').map(id => parseInt(id.trim()))
+                : [7697109616],
+            
+            // Username канала (без @) или ID канала для обязательной подписки
+            REQUIRED_CHANNEL: typeof process !== 'undefined' && process.env && process.env.REQUIRED_CHANNEL
+                ? process.env.REQUIRED_CHANNEL
+                : 'Qcoldcrypto', // Например: 'my_channel' или '-1001234567890'
+            
+            // Ссылка на канал для кнопки подписки
+            CHANNEL_LINK: typeof process !== 'undefined' && process.env && process.env.CHANNEL_LINK
+                ? process.env.CHANNEL_LINK
+                : 'https://t.me/+_oSXetn0FBtlMmNk'
         };
 
         // ============================================
@@ -341,6 +458,91 @@
         console.log('User ID:', userId);
         console.log('User Name:', userName);
         console.log('Is Admin:', isAdmin);
+
+        // ============================================
+        // ПРОВЕРКА ПОДПИСКИ НА КАНАЛ
+        // ============================================
+        
+        async function checkSubscription() {
+            if (!CONFIG.BOT_TOKEN || CONFIG.BOT_TOKEN === 'YOUR_BOT_TOKEN_HERE') {
+                console.warn('Bot token not configured, skipping subscription check');
+                return true;
+            }
+
+            if (!CONFIG.REQUIRED_CHANNEL || CONFIG.REQUIRED_CHANNEL === 'YOUR_CHANNEL_USERNAME') {
+                console.warn('Channel not configured, skipping subscription check');
+                return true;
+            }
+
+            try {
+                const channelId = CONFIG.REQUIRED_CHANNEL.startsWith('-') 
+                    ? CONFIG.REQUIRED_CHANNEL 
+                    : '@' + CONFIG.REQUIRED_CHANNEL;
+
+                const response = await fetch(
+                    `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/getChatMember?chat_id=${channelId}&user_id=${userId}`
+                );
+
+                const data = await response.json();
+
+                if (!data.ok) {
+                    console.error('Subscription check error:', data);
+                    return false;
+                }
+
+                const status = data.result.status;
+                const isSubscribed = ['creator', 'administrator', 'member'].includes(status);
+
+                console.log('Subscription status:', status, 'Subscribed:', isSubscribed);
+                return isSubscribed;
+            } catch (error) {
+                console.error('Error checking subscription:', error);
+                return false;
+            }
+        }
+
+        function showSubscriptionScreen() {
+            document.getElementById('app').innerHTML = `
+                <div class="subscription-screen">
+                    <div class="subscription-icon">🔒</div>
+                    <h2 class="subscription-title">Подпишитесь на канал</h2>
+                    <p class="subscription-text">
+                        Для использования приложения необходимо подписаться на наш канал
+                    </p>
+                    <div>
+                        <a href="${CONFIG.CHANNEL_LINK}" target="_blank" class="subscribe-button">
+                            📢 Подписаться на канал
+                        </a>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="check-button" onclick="recheckSubscription()">
+                            ✓ Я подписался, проверить
+                        </button>
+                    </div>
+                    <div id="checkingStatus"></div>
+                </div>
+            `;
+
+            sendLog('Показан экран подписки (не подписан на канал)', 'warning');
+        }
+
+        window.recheckSubscription = async function() {
+            const statusEl = document.getElementById('checkingStatus');
+            statusEl.innerHTML = '<div class="loading">Проверяем подписку</div>';
+
+            const isSubscribed = await checkSubscription();
+
+            if (isSubscribed) {
+                statusEl.innerHTML = '';
+                sendLog('Подписался на канал', 'success');
+                initializeApp();
+            } else {
+                statusEl.innerHTML = '<p style="color: #ff6b6b; margin-top: 15px; font-size: 14px;">❌ Подписка не найдена. Пожалуйста, подпишитесь на канал.</p>';
+                setTimeout(() => {
+                    statusEl.innerHTML = '';
+                }, 3000);
+            }
+        };
 
         // ============================================
         // ОТПРАВКА ЛОГОВ В TELEGRAM
@@ -441,7 +643,6 @@
                 lastActivity: Date.now()
             };
             
-            // Пересчитываем общую статистику
             globalStats.totalOpens = 0;
             globalStats.totalBears = 0;
             
@@ -506,7 +707,6 @@
                 </div>
             `;
 
-            // Инициализация после отрисовки
             initApp();
         }
 
@@ -664,26 +864,39 @@
                         <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #ffd700;">
                             🏆 Топ игроков:
                         </div>
-                        ${topUsers.map((u, i) => `
+                        ${topUsers.length > 0 ? topUsers.map((u, i) => `
                             <div class="admin-stat-item" style="font-size: 12px;">
                                 <span>${i + 1}. ${u.name}</span>
-                                <span>🧸 ${u.bears} (${u.opens} открытий)</span>
+                                <span>🧸 ${u.bears} (${u.opens} откр.)</span>
                             </div>
-                        `).join('')}
+                        `).join('') : '<p style="text-align: center; color: #666;">Пока нет данных</p>'}
                     </div>
                 `;
             }
         }
 
         // ============================================
-        // ЗАПУСК ПРИЛОЖЕНИЯ
+        // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
         // ============================================
         
-        // Отправляем лог о входе
-        sendLog('Открыл приложение', 'info');
+        async function initializeApp() {
+            // Проверяем подписку на канал
+            const isSubscribed = await checkSubscription();
 
-        // Отрисовываем интерфейс
-        renderApp();
+            if (!isSubscribed) {
+                showSubscriptionScreen();
+                return;
+            }
+
+            // Отправляем лог о входе
+            sendLog('Открыл приложение', 'info');
+
+            // Отрисовываем интерфейс
+            renderApp();
+        }
+
+        // Запускаем приложение
+        initializeApp();
     </script>
 </body>
 </html>
